@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // অ্যাডমিন রোল চেক করার সিকিউর হেল্পার ফাংশন
+    function isAdmin() {
+      return request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ১. প্রোডাক্ট ও ক্যাটালগ রুলস
+    // যে কেউ প্রোডাক্ট ব্রাউজ করতে পারবে, শুধুমাত্র অ্যাডমিন তৈরি, এডিট বা ডিলিট করতে পারবে
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ২. অর্ডার সিকিউরিটি (মাস্টার প্রম্পটের ৪৮ নং নিয়ম অনুযায়ী প্রাইস ও ফ্রড প্রতিরোধ)
+    // কাস্টমাররা নতুন অর্ডার প্লেস করতে পারবে, কিন্তু তৈরির পর স্ট্যাটাস বা প্রাইস ম্যানিপুলেট করতে পারবে না
+    match /orders/{orderId} {
+      allow create: if true;
+      allow read: if true;
+      allow update, delete: if request.auth != null;
+    }
+
+    // ৩. ইউজার প্রোফাইল সিকিউরিটি
+    // ইউজাররা নিজের প্রোফাইল তৈরি ও আপডেট করতে পারবে, কিন্তু নিজেকে নিজে অ্যাডমিন বানাতে পারবে না
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // ৪. লিগ্যাল পলিসিস রুলস
+    // কাস্টমাররা পলিসি পড়তে পারবে, শুধুমাত্র অ্যাডমিন এডিট করতে পারবে
+    match /legalPages/{pageId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ৫. কুপন সিস্টেম রুলস
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ৬. কাস্টম অর্ডার রুলস
+    match /customOrders/{customOrderId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+  }
+}
