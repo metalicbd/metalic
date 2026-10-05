@@ -36,4 +36,4 @@
 
 ### ১. ডিপেন্ডেন্সি ইন্সটল করুন
 ```bash
-npm install
+npm install# metalic
