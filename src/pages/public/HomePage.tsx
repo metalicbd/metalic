@@ -69,14 +69,14 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      {/* আপনার নির্বাচিত আকর্ষণীয় এসইও মেটা টাইটেল ও ডেসক্রিপশন */}
+      {/* ব্রাউজার ট্যাবে শুধুমাত্র METALIC */}
       <Helmet>
-        <title>Unique Metal Poster Designs: Jaw-Dropping Wall Art | METALIC</title>
+        <title>METALIC</title>
         <meta
           name="description"
           content="Transform your living space with our mind-blowing metal poster collection. Featuring stunning, durable designs that are guaranteed to impress. Shop today and save!"
         />
-        <meta property="og:title" content="Unique Metal Poster Designs: Jaw-Dropping Wall Art | METALIC" />
+        <meta property="og:title" content="METALIC" />
         <meta
           property="og:description"
           content="Transform your living space with our mind-blowing metal poster collection. Featuring stunning, durable designs that are guaranteed to impress. Shop today and save!"
@@ -112,9 +112,9 @@ export const HomePage: React.FC = () => {
                 <Link to="/shop" className="inline-block">
                   <Button
                     variant="primary"
-                    size="sm"
-                    rightIcon={<ArrowRight className="w-3 3.5 sm:w-4 sm:h-4 shrink-0" />}
-                    className="bg-black text-white hover:bg-neutral-800 px-2.5 sm:px-6 lg:px-8 h-8 sm:h-10 lg:h-12 text-[9.5px] sm:text-xs uppercase tracking-wider sm:tracking-widest font-bold shadow-md cursor-pointer whitespace-nowrap"
+                    size="lg"
+                    rightIcon={<ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />}
+                    className="bg-black text-white hover:bg-neutral-800 px-3 sm:px-6 lg:px-8 h-8 sm:h-10 lg:h-12 text-[9.5px] sm:text-xs uppercase tracking-wider sm:tracking-widest font-bold shadow-md cursor-pointer whitespace-nowrap"
                   >
                     VIEW ALL POSTERS
                   </Button>
@@ -173,7 +173,7 @@ export const HomePage: React.FC = () => {
                       <span className="text-[7px] sm:text-[9px] uppercase font-bold tracking-widest text-blue-400 block mb-0.5 leading-none">
                         {heroProduct.category}
                       </span>
-                      <h3 className="text-[8px] sm:text-xs lg:text-sm font-bold uppercase tracking-wide leading-tight text-white line-clamp-1 sm:line-clamp-2 drop-shadow-md">
+                      <h3 className="text-[8px] sm:text-xs lg:text-sm font-bold uppercase tracking-wide leading-tight sm:leading-snug text-white line-clamp-1 sm:line-clamp-2 drop-shadow-md">
                         {heroProduct.title}
                       </h3>
                     </div>
@@ -221,7 +221,7 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* হোমপেজ ফিচার্ড পোস্টার ক্যাটালগ গ্রিড */}
+      {/* হোমপেজ ফিচার্ড পোস্টার ক্যাটালগ গ্রিড — বাটন দুটি মোটা, সলিড ও প্রিমিয়াম */}
       <section className="py-10 sm:py-16 bg-white">
         <div className="w-full px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-10 text-left">
@@ -236,14 +236,14 @@ export const HomePage: React.FC = () => {
               </p>
             </div>
 
-            {/* বাটন দুটি মোবাইল এবং পিসি উভয় স্ক্রিনেই সবসময় ডান পাশে (Right-aligned) থাকবে */}
+            {/* বাটন দুটি সলিড থিকনেস ও মোটা আকারে ডানপাশে ফিক্সড */}
             <div className="flex items-center justify-end gap-2 shrink-0 sm:ml-auto">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setIsModalOpen(true)}
-                leftIcon={<Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600 shrink-0" />}
-                className="h-7.5 sm:h-9 px-2.5 sm:px-3.5 text-[9px] sm:text-xs font-bold whitespace-nowrap cursor-pointer border-slate-200 hover:border-black text-slate-800"
+                leftIcon={<Eye className="w-3.5 h-3.5 text-blue-600 shrink-0" />}
+                className="h-9 px-3.5 rounded-xl text-[10px] sm:text-xs font-bold whitespace-nowrap cursor-pointer border-slate-200 hover:border-black text-slate-800 shadow-2xs transition-colors"
               >
                 Mounting Guide
               </Button>
@@ -252,8 +252,8 @@ export const HomePage: React.FC = () => {
                 <Button
                   variant="primary"
                   size="sm"
-                  className="bg-black text-white hover:bg-neutral-800 px-2.5 sm:px-4 h-7.5 sm:h-9 text-[9px] sm:text-xs font-bold uppercase whitespace-nowrap cursor-pointer shadow-xs"
-                  rightIcon={<ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />}
+                  className="h-9 px-3.5 sm:px-5 rounded-xl bg-black text-white hover:bg-neutral-800 text-[10px] sm:text-xs font-bold uppercase tracking-wider whitespace-nowrap cursor-pointer shadow-xs transition-colors"
+                  rightIcon={<ArrowRight className="w-3.5 h-3.5 shrink-0" />}
                 >
                   View All ({allProducts.length})
                 </Button>
@@ -275,7 +275,7 @@ export const HomePage: React.FC = () => {
             <h2 className="text-2xl sm:text-3xl font-black uppercase text-black mt-1 font-sans">
               Why Metalic Wall Art?
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1 sm:mt-2">
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
               Standard paper posters tear, fade and bend. Metalic posters are built from steel plates designed to last for decades.
             </p>
           </div>
