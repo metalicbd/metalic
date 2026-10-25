@@ -41,8 +41,8 @@ export const HomePage: React.FC = () => {
           const heroSelected = data.find((p) => p.showInHero);
           setHeroProduct(heroSelected || data[0] || null);
 
-          // শুধুমাত্র হোমপেজের জন্য নির্ধারিত পোস্টারসমূহ
-          const forHome = data.filter((p) => p.showInHomepage !== false).slice(0, 4);
+          // শুধুমাত্র হোমপেজের জন্য নির্ধারিত পোস্টারসমূহ (সীমাহীন / অ্যাডমিনের টিক দেওয়া সবগুলো)
+          const forHome = data.filter((p) => p.showInHomepage);
           setHomepageProducts(forHome);
         }
       } catch (err) {
@@ -221,7 +221,7 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* হোমপেজ ফিচার্ড পোস্টার ক্যাটালগ গ্রিড — বাটন দুটি মোটা, সলিড ও প্রিমিয়াম */}
+      {/* হোমপেজ ফিচার্ড পোস্টার ক্যাটালগ গ্রিড */}
       <section className="py-10 sm:py-16 bg-white">
         <div className="w-full px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-10 text-left">
