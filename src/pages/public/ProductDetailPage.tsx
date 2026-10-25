@@ -169,15 +169,20 @@ export const ProductDetailPage: React.FC = () => {
   const activeImage = allImages[currentImageIndex] || product.featuredImage;
   const isWishlisted = isInWishlist(product.id);
 
-  // ডায়নামিক স্টক গণনা (Admin Panel এর UNIT STOCK ফিল্ড থেকে)
-  const stockCount: number =
-    typeof (product as any).stock === 'number'
-      ? (product as any).stock
-      : typeof (product as any).unitStock === 'number'
-      ? (product as any).unitStock
-      : 50;
+  // ✅ অ্যাডমিন প্যানেলের "UNIT STOCK"-এ আপনি যে সংখ্যাই লিখবেন (১০, ২০, ৫ ইত্যাদি) ঠিক সেটাই রিড করবে
+  const rawStock =
+    (product as any).unitStock ??
+    (product as any).stock ??
+    (product as any).inventory ??
+    (product as any).units;
 
-  const isAvailable = product.inStock && stockCount > 0;
+  const actualStock: number | null =
+    rawStock !== undefined && rawStock !== null && rawStock !== ''
+      ? Number(rawStock)
+      : null;
+
+  // স্টক যদি ০ হয় তবে Out of Stock
+  const isOutOfStock = actualStock !== null ? actualStock <= 0 : !product.inStock;
 
   const discountPercentage =
     product.discountPrice && product.price > product.discountPrice
@@ -206,7 +211,7 @@ export const ProductDetailPage: React.FC = () => {
       <section className="w-full px-3 sm:px-6 lg:px-8 py-3 sm:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 lg:gap-14 items-start">
           
-          {/* বাম পাশ: মোবাইলে অপ্টিমাইজড কমপ্যাক্ট ইমেজ ফ্রেম */}
+          {/* বাম পাশ: ইমেজ ফ্রেম */}
           <div className="lg:col-span-6 flex flex-col items-center">
             <div className="relative w-full max-w-[220px] sm:max-w-[320px] lg:max-w-md aspect-square rounded-2xl sm:rounded-3xl p-2 sm:p-3 bg-white border border-slate-200 shadow-premium">
               <div
@@ -299,7 +304,7 @@ export const ProductDetailPage: React.FC = () => {
           {/* ডান পাশ: স্পেসিফিকেশন ও ক্রয় ব্যবস্থা */}
           <div className="lg:col-span-6 flex flex-col text-left space-y-2.5 sm:space-y-6 mt-1 lg:mt-0">
             
-            {/* রিভিউ ও ডায়নামিক স্টক (Unit Stock সহ) */}
+            {/* রিভিউ ও ডায়নামিক স্টক (আপনার দেওয়া সংখ্যা হুবহু দেখাবে) */}
             <div className="flex items-center space-x-2.5 sm:space-x-3 text-[10px] sm:text-xs">
               <div className="flex items-center text-amber-500 font-bold">
                 <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-amber-400 text-amber-400 mr-1" />
@@ -309,11 +314,11 @@ export const ProductDetailPage: React.FC = () => {
               <span className="text-slate-500 font-medium">({product.reviewCount || 0} reviews)</span>
               <span className="text-slate-300">•</span>
               
-              {/* ✅ ইউনিট স্টক সংখ্যা প্রদর্শন */}
-              {isAvailable ? (
+              {/* ✅ যদি আপনি অ্যাডমিন প্যানেলে যা সংখ্যা দেবেন (যেমন 5 বা 12 বা 50) ঠিক সেটাই দেখাবে */}
+              {!isOutOfStock ? (
                 <span className="text-emerald-600 font-bold uppercase tracking-wider flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
-                  IN STOCK ({stockCount} AVAILABLE)
+                  IN STOCK {actualStock !== null ? `(${actualStock} AVAILABLE)` : ''}
                 </span>
               ) : (
                 <span className="text-red-500 font-bold uppercase tracking-wider">
@@ -377,7 +382,7 @@ export const ProductDetailPage: React.FC = () => {
             <div className="flex flex-col space-y-2 sm:space-y-3 pt-1 sm:pt-2">
               <div className="flex items-center space-x-2 sm:space-x-3">
                 
-                {/* কোয়ান্টিটি কাউন্টার (স্টক লিমিট সেট করা) */}
+                {/* কোয়ান্টিটি কাউন্টার */}
                 <div className="flex items-center bg-slate-100 border border-slate-200 rounded-xl p-0.5 sm:p-1 h-9 sm:h-11">
                   <button
                     type="button"
@@ -391,10 +396,16 @@ export const ProductDetailPage: React.FC = () => {
                     {quantity}
                   </span>
 
-                  {/* ✅ প্লাস বাটন স্টকের বেশি বাড়তে দেবে না */}
+                  {/* ✅ এই প্রোডাক্টের জন্য যে স্টক নির্দিষ্ট করা আছে তার বেশি বাড়ানো যাবে না */}
                   <button
                     type="button"
-                    onClick={() => setQuantity((prev) => Math.min(stockCount, prev + 1))}
+                    onClick={() => {
+                      if (actualStock !== null) {
+                        setQuantity((prev) => Math.min(actualStock, prev + 1));
+                      } else {
+                        setQuantity((prev) => prev + 1);
+                      }
+                    }}
                     className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white shadow-xs flex items-center justify-center text-slate-700 hover:text-black transition-colors cursor-pointer"
                   >
                     <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -404,12 +415,12 @@ export const ProductDetailPage: React.FC = () => {
                 <Button
                   variant="primary"
                   size="lg"
-                  disabled={!isAvailable}
+                  disabled={isOutOfStock}
                   onClick={handleAddToCart}
                   className="flex-1 bg-black text-white hover:bg-neutral-800 disabled:bg-slate-300 font-bold uppercase tracking-wider sm:tracking-widest text-[10px] sm:text-xs h-9 sm:h-11 shadow-sm cursor-pointer"
                   leftIcon={<ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                 >
-                  {isAvailable ? 'ADD TO CART' : 'OUT OF STOCK'}
+                  {!isOutOfStock ? 'ADD TO CART' : 'OUT OF STOCK'}
                 </Button>
 
                 <button
@@ -429,11 +440,11 @@ export const ProductDetailPage: React.FC = () => {
 
               <button
                 type="button"
-                disabled={!isAvailable}
+                disabled={isOutOfStock}
                 onClick={handleBuyNow}
                 className="w-full h-9 sm:h-11 bg-white border-2 border-black text-black hover:bg-slate-50 disabled:opacity-40 font-black uppercase tracking-widest text-[10px] sm:text-xs rounded-xl shadow-2xs transition-all cursor-pointer"
               >
-                {isAvailable ? 'BUY IT NOW' : 'OUT OF STOCK'}
+                {!isOutOfStock ? 'BUY IT NOW' : 'OUT OF STOCK'}
               </button>
             </div>
 
