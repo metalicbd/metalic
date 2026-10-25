@@ -169,6 +169,16 @@ export const ProductDetailPage: React.FC = () => {
   const activeImage = allImages[currentImageIndex] || product.featuredImage;
   const isWishlisted = isInWishlist(product.id);
 
+  // ডায়নামিক স্টক গণনা (Admin Panel এর UNIT STOCK ফিল্ড থেকে)
+  const stockCount: number =
+    typeof (product as any).stock === 'number'
+      ? (product as any).stock
+      : typeof (product as any).unitStock === 'number'
+      ? (product as any).unitStock
+      : 50;
+
+  const isAvailable = product.inStock && stockCount > 0;
+
   const discountPercentage =
     product.discountPrice && product.price > product.discountPrice
       ? Math.round(((product.price - product.discountPrice) / product.price) * 100)
@@ -260,7 +270,7 @@ export const ProductDetailPage: React.FC = () => {
               </div>
             </div>
 
-            {/* থাম্বনেইল গ্যালারি — স্লিম ও কমপ্যাক্ট */}
+            {/* থাম্বনেইল গ্যালারি */}
             {allImages.length > 1 && (
               <div className="flex items-center justify-center flex-wrap gap-2 sm:gap-3 mt-2.5 sm:mt-4 py-1 sm:py-2 overflow-x-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                 {allImages.map((img, idx) => (
@@ -289,7 +299,7 @@ export const ProductDetailPage: React.FC = () => {
           {/* ডান পাশ: স্পেসিফিকেশন ও ক্রয় ব্যবস্থা */}
           <div className="lg:col-span-6 flex flex-col text-left space-y-2.5 sm:space-y-6 mt-1 lg:mt-0">
             
-            {/* রিভিউ ও স্টক */}
+            {/* রিভিউ ও ডায়নামিক স্টক (Unit Stock সহ) */}
             <div className="flex items-center space-x-2.5 sm:space-x-3 text-[10px] sm:text-xs">
               <div className="flex items-center text-amber-500 font-bold">
                 <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-amber-400 text-amber-400 mr-1" />
@@ -298,9 +308,18 @@ export const ProductDetailPage: React.FC = () => {
               <span className="text-slate-300">•</span>
               <span className="text-slate-500 font-medium">({product.reviewCount || 0} reviews)</span>
               <span className="text-slate-300">•</span>
-              <span className="text-emerald-600 font-bold uppercase tracking-wider">
-                {product.inStock ? 'In Stock' : 'Out of Stock'}
-              </span>
+              
+              {/* ✅ ইউনিট স্টক সংখ্যা প্রদর্শন */}
+              {isAvailable ? (
+                <span className="text-emerald-600 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
+                  IN STOCK ({stockCount} AVAILABLE)
+                </span>
+              ) : (
+                <span className="text-red-500 font-bold uppercase tracking-wider">
+                  OUT OF STOCK
+                </span>
+              )}
             </div>
 
             {/* টাইটেল */}
@@ -357,6 +376,8 @@ export const ProductDetailPage: React.FC = () => {
             {/* কোয়ান্টিটি ও অ্যাকশন বাটনসমূহ */}
             <div className="flex flex-col space-y-2 sm:space-y-3 pt-1 sm:pt-2">
               <div className="flex items-center space-x-2 sm:space-x-3">
+                
+                {/* কোয়ান্টিটি কাউন্টার (স্টক লিমিট সেট করা) */}
                 <div className="flex items-center bg-slate-100 border border-slate-200 rounded-xl p-0.5 sm:p-1 h-9 sm:h-11">
                   <button
                     type="button"
@@ -365,12 +386,15 @@ export const ProductDetailPage: React.FC = () => {
                   >
                     <Minus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   </button>
+                  
                   <span className="w-7 sm:w-10 text-center font-bold text-xs sm:text-sm text-black">
                     {quantity}
                   </span>
+
+                  {/* ✅ প্লাস বাটন স্টকের বেশি বাড়তে দেবে না */}
                   <button
                     type="button"
-                    onClick={() => setQuantity(quantity + 1)}
+                    onClick={() => setQuantity((prev) => Math.min(stockCount, prev + 1))}
                     className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white shadow-xs flex items-center justify-center text-slate-700 hover:text-black transition-colors cursor-pointer"
                   >
                     <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -380,11 +404,12 @@ export const ProductDetailPage: React.FC = () => {
                 <Button
                   variant="primary"
                   size="lg"
+                  disabled={!isAvailable}
                   onClick={handleAddToCart}
-                  className="flex-1 bg-black text-white hover:bg-neutral-800 font-bold uppercase tracking-wider sm:tracking-widest text-[10px] sm:text-xs h-9 sm:h-11 shadow-sm cursor-pointer"
+                  className="flex-1 bg-black text-white hover:bg-neutral-800 disabled:bg-slate-300 font-bold uppercase tracking-wider sm:tracking-widest text-[10px] sm:text-xs h-9 sm:h-11 shadow-sm cursor-pointer"
                   leftIcon={<ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                 >
-                  ADD TO CART
+                  {isAvailable ? 'ADD TO CART' : 'OUT OF STOCK'}
                 </Button>
 
                 <button
@@ -404,10 +429,11 @@ export const ProductDetailPage: React.FC = () => {
 
               <button
                 type="button"
+                disabled={!isAvailable}
                 onClick={handleBuyNow}
-                className="w-full h-9 sm:h-11 bg-white border-2 border-black text-black hover:bg-slate-50 font-black uppercase tracking-widest text-[10px] sm:text-xs rounded-xl shadow-2xs transition-all cursor-pointer"
+                className="w-full h-9 sm:h-11 bg-white border-2 border-black text-black hover:bg-slate-50 disabled:opacity-40 font-black uppercase tracking-widest text-[10px] sm:text-xs rounded-xl shadow-2xs transition-all cursor-pointer"
               >
-                BUY IT NOW
+                {isAvailable ? 'BUY IT NOW' : 'OUT OF STOCK'}
               </button>
             </div>
 
